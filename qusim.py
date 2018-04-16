@@ -134,6 +134,14 @@ class QuScore:
 			self.score[time_step][qubit1] = (gate, 1)
 			self.score[time_step][qubit1 + 1] = (gate, 2)
 			
+		elif gate.get_num_of_qubits() == 3:
+			
+			if time_step not in self.score.keys():
+				self.score[time_step] = {}
+			self.score[time_step][qubit1] = (gate, 1)
+			self.score[time_step][qubit1 + 1] = (gate, 2)
+			self.score[time_step][qubit1 + 2] = (gate, 3)
+			
 		return self
 			
 	# appends a different score to the end of this one; the score passed is unmodified
@@ -207,6 +215,13 @@ class QuScore:
 						if operations[qubit][1] == 1:
 							matrices.append(None)
 						elif operations[qubit][1] == 2:
+							matrices.append(gate.get_matrix_rep())
+					elif gate.get_num_of_qubits() == 3:
+						if operations[qubit][1] == 1:
+							matrices.append(None)
+						elif operations[qubit][1] == 2:
+							matrices.append(None)
+						elif operations[qubit][1] == 3:
 							matrices.append(gate.get_matrix_rep())
 			
 			current_matrix = self.assimilate(np.matmul(get_unitary_matrix_helper(matrices), current_matrix))
@@ -293,6 +308,23 @@ CZ = QuGate("CZ", QuScore(2).add_gate(H, 1, 2).add_gate(CNOT, 2, 1).add_gate(H, 
 #   iff the first qubit is measured to be 1
 CY = QuGate("CY", QuScore(2).add_gate(St, 1, 2).add_gate(CNOT, 2, 1).add_gate(S, 3, 2))
 
+# the controlled Hadamard gate, which performs a Hadamard operation on the second qubit
+#   iff the first qubit is measured to be 1
+CH = QuGate("CH", QuScore(2).add_gate(H, 1, 2)
+                            .add_gate(S, 2, 2)
+							.add_gate(CNOT, 3, 1)
+                            .add_gate(S, 4, 2)
+							.add_gate(H, 5, 2)
+							.add_gate(St, 6, 2)
+							.add_gate(H, 7, 2)
+							.add_gate(Tt, 8, 2)
+							.add_gate(CNOT, 9, 1)
+							.add_gate(T, 10, 2)
+							.add_gate(H, 11, 2)
+							.add_gate(S, 12, 2)
+							.add_gate(St, 13, 1)
+							.add_gate(X, 13, 2))
+
 # the reversed controlled-not gate, which flips the first qubit iff the second qubit
 #   is measured to be 1
 # in terms of universal gates only:
@@ -360,6 +392,14 @@ CNOT13 = QuGate("CNOT13", QuScore(3).add_gate(SWAP, 1, 2).add_gate(CNOT, 2, 1).a
 #                                     .add_gate(H, 14, 2)
 #                                     .add_gate(CNOT, 15, 1)
 SWAP13 = QuGate("SWAP13", QuScore(3).add_gate(SWAP, 1, 1).add_gate(SWAP, 2, 2).add_gate(SWAP, 3, 1))
+
+# the Toffoli gates, which flips the state of the third qubit in a three-qubit score iff
+#   the states of the first and second qubits are both measured to be 1
+TOF = QuGate("TOF", QuScore(3).add_gate(H, 1, 3).add_gate(CNOT, 2, 2).add_gate(Tt, 3, 3)
+                              .add_gate(CNOT13, 4, 1).add_gate(T, 5, 3).add_gate(CNOT, 6, 2)
+							  .add_gate(Tt, 7, 3).add_gate(CNOT13, 8, 1).add_gate(T, 9, 2)
+							  .add_gate(T, 9, 3).add_gate(CNOT, 10, 1).add_gate(H, 10, 3)
+							  .add_gate(T, 11, 1).add_gate(Tt, 11, 2).add_gate(CNOT, 12, 1))
 
 ############################################################################################
 
