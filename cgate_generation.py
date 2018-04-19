@@ -20,7 +20,7 @@ def are_close_enough(mat1, mat2):
 	return all(map(lambda x, y: np.abs(x - y) < epsilon, flatten(mat1.tolist()), flatten(mat2.tolist())))
 
 
-def find_controlled_gate(matrix_rep):
+def find_controlled_gate_AXBXC(matrix_rep):
 
 	global whole_representation
 	global curr_A_representation
@@ -73,6 +73,55 @@ def find_controlled_gate(matrix_rep):
 		if are_close_enough(matrix_rep, np.matmul(A, np.matmul(X, np.matmul(B, np.matmul(X, C))))):
 			return curr_A_representation, curr_B_representation
 		modify_representations()
-		
+
+
+def find_controlled_gate_AXB(matrix_rep):
+
+	global whole_representation
+	whole_representation = []
+	
+	def iter_whole_representation():
+		global whole_representation
+		length = len(whole_representation)
+		for i in range(length - 1, -1, -1):
+			if whole_representation[i] != num_of_gates - 1:
+				whole_representation[i] += 1
+				for j in range(i + 1, length):
+					whole_representation[j] = 0
+				return
+		print("Finished searching size", length)
+		whole_representation = [0] * (length + 1)
+	
+	def mult_all(rep):
+		if len(rep) == 0:
+			return np.matrix([[1, 0], [0, 1]])
+		else:
+			return np.matmul(universal_gates[rep[0]], mult_all(rep[1::]))
+	
+	while True:
+		A = mult_all(whole_representation)
+		B = np.linalg.inv(A)
+		if are_close_enough(matrix_rep, np.matmul(A, np.matmul(X, B))):
+			return whole_representation
+		iter_whole_representation()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	
 		
