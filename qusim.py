@@ -310,20 +310,13 @@ CY = QuGate("CY", QuScore(2).add_gate(St, 1, 2).add_gate(CNOT, 2, 1).add_gate(S,
 
 # the controlled Hadamard gate, which performs a Hadamard operation on the second qubit
 #   iff the first qubit is measured to be 1
-CH = QuGate("CH", QuScore(2).add_gate(H, 1, 2)
-                            .add_gate(S, 2, 2)
-							.add_gate(CNOT, 3, 1)
-                            .add_gate(S, 4, 2)
-							.add_gate(H, 5, 2)
-							.add_gate(St, 6, 2)
-							.add_gate(H, 7, 2)
-							.add_gate(Tt, 8, 2)
-							.add_gate(CNOT, 9, 1)
-							.add_gate(T, 10, 2)
-							.add_gate(H, 11, 2)
-							.add_gate(S, 12, 2)
-							.add_gate(St, 13, 1)
-							.add_gate(X, 13, 2))
+CH = QuGate("CH", QuScore(2).add_gate(St, 1, 2)
+                            .add_gate(H, 2, 2)
+							.add_gate(Tt, 3, 2)
+                            .add_gate(CNOT, 4, 1)
+							.add_gate(T, 5, 2)
+							.add_gate(H, 6, 2)
+							.add_gate(S, 7, 2))
 
 # the reversed controlled-not gate, which flips the first qubit iff the second qubit
 #   is measured to be 1
