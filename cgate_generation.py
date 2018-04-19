@@ -9,7 +9,7 @@ curr_B_representation = []
 
 # determines if two matrices are "close enough" to each other (this function is required due to Python's float inprecision)
 def are_close_enough(mat1, mat2):
-	epsilon = 1e-8
+	epsilon = 1e-6
 	
 	def flatten(mat):
 		if len(mat) == 0:
@@ -70,7 +70,8 @@ def find_controlled_gate_AXBXC(matrix_rep):
 		A = mult_all(curr_A_representation)
 		B = mult_all(curr_B_representation)
 		C = np.linalg.inv(np.matmul(A, B))
-		if are_close_enough(matrix_rep, np.matmul(A, np.matmul(X, np.matmul(B, np.matmul(X, C))))):
+		mul = np.matmul
+		if are_close_enough(matrix_rep, mul(A, mul(X, mul(B, mul(X, C))))):
 			return curr_A_representation, curr_B_representation
 		modify_representations()
 
@@ -101,7 +102,8 @@ def find_controlled_gate_AXBX(matrix_rep):
 	while True:
 		A = mult_all(whole_representation)
 		B = np.linalg.inv(A)
-		if are_close_enough(matrix_rep, np.matmul(A, np.matmul(X, np.matmul(B, X)))):
+		mul = np.matmul
+		if are_close_enough(matrix_rep, mul(X, mul(B, mul(X, A)))):
 			return whole_representation
 		iter_whole_representation()
 		
@@ -132,7 +134,8 @@ def find_controlled_gate_AXB(matrix_rep):
 	while True:
 		A = mult_all(whole_representation)
 		B = np.linalg.inv(A)
-		if are_close_enough(matrix_rep, np.matmul(A, np.matmul(X, B))):
+		mul = np.matmul
+		if are_close_enough(matrix_rep, mul(A, mul(X, B))):
 			return whole_representation
 		iter_whole_representation()
 
