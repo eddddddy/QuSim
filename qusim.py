@@ -393,23 +393,77 @@ CNOT13 = QuGate("CNOT13", QuScore(3).add_gate(SWAP, 1, 2).add_gate(CNOT, 2, 1).a
 #                                     .add_gate(CNOT, 15, 1)
 SWAP13 = QuGate("SWAP13", QuScore(3).add_gate(SWAP, 1, 1).add_gate(SWAP, 2, 2).add_gate(SWAP, 3, 1))
 
-# the Toffoli gates, which flips the state of the third qubit in a three-qubit score iff
+# the Toffoli gate, which flips the state of the third qubit in a three-qubit score iff
 #   the states of the first and second qubits are both measured to be 1
-TOF = QuGate("TOF", QuScore(3).add_gate(H, 1, 3).add_gate(CNOT, 2, 2).add_gate(Tt, 3, 3)
-                              .add_gate(CNOT13, 4, 1).add_gate(T, 5, 3).add_gate(CNOT, 6, 2)
-							  .add_gate(Tt, 7, 3).add_gate(CNOT13, 8, 1).add_gate(T, 9, 2)
-							  .add_gate(T, 9, 3).add_gate(CNOT, 10, 1).add_gate(H, 10, 3)
-							  .add_gate(T, 11, 1).add_gate(Tt, 11, 2).add_gate(CNOT, 12, 1))
+# in terms of universal gates only:
+# TOF = QuGate("TOF", QuScore(3).add_gate(H, 1, 3)
+#                               .add_gate(CNOT, 2, 2)
+#                               .add_gate(Tt, 3, 3)
+#                               .add_gate(CNOT, 4, 2)
+#                               .add_gate(H, 5, 2)
+#                               .add_gate(H, 5, 3)
+#                               .add_gate(CNOT, 6, 2)
+#                               .add_gate(H, 7, 2)
+#                               .add_gate(H, 7, 3)
+#                               .add_gate(CNOT, 8, 2)
+#                               .add_gate(CNOT, 9, 1)
+#                               .add_gate(CNOT, 10, 2)
+#                               .add_gate(H, 11, 2)
+#                               .add_gate(H, 11, 3)
+#                               .add_gate(CNOT, 12, 2)
+#                               .add_gate(H, 13, 2)
+#                               .add_gate(H, 13, 3)
+#                               .add_gate(CNOT, 14, 2)
+#                               .add_gate(T, 15, 3)
+#                               .add_gate(CNOT, 16, 2)
+#                               .add_gate(Tt, 17, 3)
+#                               .add_gate(CNOT, 18, 2)
+#                               .add_gate(H, 19, 2)
+#                               .add_gate(H, 19, 3)
+#                               .add_gate(CNOT, 20, 2)
+#                               .add_gate(H, 21, 2)
+#                               .add_gate(H, 21, 3)
+#                               .add_gate(CNOT, 22, 2)
+#                               .add_gate(CNOT, 23, 1)
+#                               .add_gate(CNOT, 24, 2)
+#                               .add_gate(H, 25, 2)
+#                               .add_gate(H, 25, 3)
+#                               .add_gate(CNOT, 26, 2)
+#                               .add_gate(H, 27, 2)
+#                               .add_gate(H, 27, 3)
+#                               .add_gate(CNOT, 28, 2)
+#                               .add_gate(T, 29, 2)
+#							    .add_gate(T, 29, 3)
+#                               .add_gate(CNOT, 30, 1)
+#                               .add_gate(H, 30, 3)
+#  							    .add_gate(T, 31, 1)
+#                               .add_gate(Tt, 31, 2)
+#                               .add_gate(CNOT, 32, 1))
+TOF = QuGate("TOF", QuScore(3).add_gate(H, 1, 3)
+                              .add_gate(CNOT, 2, 2)
+							  .add_gate(Tt, 3, 3)
+                              .add_gate(CNOT13, 4, 1)
+							  .add_gate(T, 5, 3)
+							  .add_gate(CNOT, 6, 2)
+							  .add_gate(Tt, 7, 3)
+							  .add_gate(CNOT13, 8, 1)
+							  .add_gate(T, 9, 2)
+							  .add_gate(T, 9, 3)
+							  .add_gate(CNOT, 10, 1)
+							  .add_gate(H, 10, 3)
+							  .add_gate(T, 11, 1)
+							  .add_gate(Tt, 11, 2)
+							  .add_gate(CNOT, 12, 1))
 
 ############################################################################################
 
 ###################################### Useful Scores #######################################
 
-# two-qubit entanglement [0.5, 0, 0, 0.5]
-entangled2_0 = QuScore(2).add_gate(H, 1, 1).add_gate(CNOT, 2, 1)
+# preparation of the Bell state [0.5, 0, 0, 0.5]
+bell_0 = QuScore(2).add_gate(H, 1, 1).add_gate(CNOT, 2, 1)
 
-# two-qubit entanglement [0, 0.5, 0.5, 0]
-entangled2_1 = QuScore(2).add_gate(H, 1, 1).add_gate(X, 1, 2).add_gate(CNOT, 2, 1)
+# preparation of a variation of the Bell state [0, 0.5, 0.5, 0]
+bell_1 = QuScore(2).add_gate(H, 1, 1).add_gate(X, 1, 2).add_gate(CNOT, 2, 1)
 
 ############################################################################################
 
