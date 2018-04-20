@@ -5,6 +5,7 @@ rotation_gates = [np.matrix([[1, 0], [0, 1j]]), np.matrix([[1, 0], [0, -1j]]), n
 other_gates = [np.matrix([[0, 1], [1, 0]]), np.matrix([[1, 0], [0, -1]]), np.matrix([[0, -1j], [1j, 0]]), np.matrix([[1, 1], [1, -1]]) / np.sqrt(2)]
 num_of_gates = len(universal_gates)
 X = np.matrix([[0, 1], [1, 0]])
+Z = np.matrix([[1, 0], [0, -1]])
 whole_representation = []
 curr_A_representation = []
 curr_B_representation = []
@@ -168,6 +169,38 @@ def find_controlled_gate_AXBX_optimized(matrix_rep):
 		B = np.linalg.inv(A)
 		mul = np.matmul
 		if are_close_enough(matrix_rep, mul(X, mul(B, mul(X, A)))):
+			return whole_representation
+		iter_whole_representation()
+		
+		
+def find_controlled_gate_AZBZ(matrix_rep):
+
+	global whole_representation
+	whole_representation = []
+	
+	def iter_whole_representation():
+		global whole_representation
+		length = len(whole_representation)
+		for i in range(length - 1, -1, -1):
+			if whole_representation[i] != num_of_gates - 1:
+				whole_representation[i] += 1
+				for j in range(i + 1, length):
+					whole_representation[j] = 0
+				return
+		print("Finished searching size", length)
+		whole_representation = [0] * (length + 1)
+	
+	def mult_all(rep):
+		curr = np.matrix([[1, 0], [0, 1]])
+		for i in range(len(rep)):
+			curr = np.matmul(curr, universal_gates[rep[i]])
+		return curr
+	
+	while True:
+		A = mult_all(whole_representation)
+		B = np.linalg.inv(A)
+		mul = np.matmul
+		if are_close_enough(matrix_rep, mul(Z, mul(B, mul(Z, A)))):
 			return whole_representation
 		iter_whole_representation()
 		
