@@ -62,12 +62,12 @@ def find_controlled_gate_AXBXC(matrix_rep):
 		else:
 			curr_A_representation = whole_representation[0: len(curr_A_representation) - 1]
 			curr_B_representation = whole_representation[len(curr_A_representation) - 1:]
-	
+			
 	def mult_all(rep):
-		if len(rep) == 0:
-			return np.matrix([[1, 0], [0, 1]])
-		else:
-			return np.matmul(universal_gates[rep[0]], mult_all(rep[1::]))
+		curr = np.matrix([[1, 0], [0, 1]])
+		for i in range(len(rep)):
+			curr = np.matmul(curr, universal_gates[rep[i]])
+		return curr
 	
 	while True:
 		A = mult_all(curr_A_representation)
@@ -97,10 +97,10 @@ def find_controlled_gate_AXBX(matrix_rep):
 		whole_representation = [0] * (length + 1)
 	
 	def mult_all(rep):
-		if len(rep) == 0:
-			return np.matrix([[1, 0], [0, 1]])
-		else:
-			return np.matmul(universal_gates[rep[0]], mult_all(rep[1::]))
+		curr = np.matrix([[1, 0], [0, 1]])
+		for i in range(len(rep)):
+			curr = np.matmul(curr, universal_gates[rep[i]])
+		return curr
 	
 	while True:
 		A = mult_all(whole_representation)
@@ -139,21 +139,29 @@ def find_controlled_gate_AXBX_optimized(matrix_rep):
 		print("Finished searching size", length)
 		whole_representation = [0] * (length + 1)
 		
-	def mult_all(rep):
-		if len(rep) == 0:
-			return np.matrix([[1, 0], [0, 1]])
-		elif start_with_rotation:
-			return np.matmul(rotation_gates[rep[0]], mult_all_other(rep[1::]))
-		else:
-			return np.matmul(other_gates[rep[0]], mult_all_other(rep[1::]))
+	def mult_all_rotation(rep):
+		curr = np.matrix([[1, 0], [0, 1]])
+		for i in range(len(rep)):
+			if i % 2 == 0:
+				curr = np.matmul(curr, rotation_gates[rep[i]])
+			else:
+				curr = np.matmul(curr, other_gates[rep[i]])
+		return curr
 			
 	def mult_all_other(rep):
-		if len(rep) == 0:
-			return np.matrix([[1, 0], [0, 1]])
-		elif start_with_rotation:
-			return np.matmul(other_gates[rep[0]], mult_all(rep[1::]))
+		curr = np.matrix([[1, 0], [0, 1]])
+		for i in range(len(rep)):
+			if i % 2 == 0:
+				curr = np.matmul(curr, other_gates[rep[i]])
+			else:
+				curr = np.matmul(curr, rotation_gates[rep[i]])
+		return curr
+			
+	def mult_all(rep):
+		if start_with_rotation:
+			return mult_all_rotation(rep)
 		else:
-			return np.matmul(rotation_gates[rep[0]], mult_all(rep[1::]))
+			return mult_all_other(rep)
 	
 	while True:
 		A = mult_all(whole_representation)
@@ -182,10 +190,10 @@ def find_controlled_gate_AXB(matrix_rep):
 		whole_representation = [0] * (length + 1)
 	
 	def mult_all(rep):
-		if len(rep) == 0:
-			return np.matrix([[1, 0], [0, 1]])
-		else:
-			return np.matmul(universal_gates[rep[0]], mult_all(rep[1::]))
+		curr = np.matrix([[1, 0], [0, 1]])
+		for i in range(len(rep)):
+			curr = np.matmul(curr, universal_gates[rep[i]])
+		return curr
 	
 	while True:
 		A = mult_all(whole_representation)
