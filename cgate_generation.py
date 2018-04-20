@@ -8,6 +8,7 @@ X = np.matrix([[0, 1], [1, 0]])
 whole_representation = []
 curr_A_representation = []
 curr_B_representation = []
+start_with_rotation = True
 
 # determines if two matrices are "close enough" to each other (this function is required due to Python's float inprecision)
 def are_close_enough(mat1, mat2):
@@ -113,10 +114,13 @@ def find_controlled_gate_AXBX(matrix_rep):
 def find_controlled_gate_AXBX_optimized(matrix_rep):
 	
 	global whole_representation
+	global start_with_rotation
 	whole_representation = []
 	start_with_rotation = True
 	
 	def iter_whole_representation():
+	
+		global start_with_rotation
 		
 		if start_with_rotation:
 			start_with_rotation = False
