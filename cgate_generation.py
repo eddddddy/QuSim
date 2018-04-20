@@ -68,7 +68,7 @@ def find_controlled_gate_AXBXC(matrix_rep):
 			if are_close_enough(matrix_rep, mul(A, mul(X, mul(B, mul(X, C))))):
 				return whole_representation[0:i], whole_representation[i:length]
 
-			modify_representations()
+		whole_representation = iter_whole_representation_universal(whole_representation)
 
 
 def find_controlled_gate_AXBX(matrix_rep):
@@ -235,7 +235,7 @@ def find_controlled_gate_AXB(matrix_rep):
 		if are_close_enough(matrix_rep, mul(A, mul(X, B))):
 			return whole_representation
 		
-		whole_representation = iter_whole_representation(whole_representation)
+		whole_representation = iter_whole_representation_universal(whole_representation)
 
 
 
