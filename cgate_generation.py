@@ -60,8 +60,8 @@ def find_controlled_gate_AXBXC(matrix_rep):
 		length = len(whole_representation) + 1
 		
 		for i in range(length):
-			A = mult_all(whole_representation[0:i])
-			B = mult_all(whole_representation[i:length])
+			A = mult_all_universal(whole_representation[0:i])
+			B = mult_all_universal(whole_representation[i:length])
 			C = np.linalg.inv(np.matmul(A, B))
 			mul = np.matmul
 			
@@ -76,7 +76,7 @@ def find_controlled_gate_AXBX(matrix_rep):
 	whole_representation = []
 	
 	while True:
-		A = mult_all(whole_representation)
+		A = mult_all_universal(whole_representation)
 		B = np.linalg.inv(A)
 		mul = np.matmul
 		
@@ -152,7 +152,7 @@ def find_controlled_gate_AZBZ(matrix_rep):
 	whole_representation = []
 	
 	while True:
-		A = mult_all(whole_representation)
+		A = mult_all_universal(whole_representation)
 		B = np.linalg.inv(A)
 		mul = np.matmul
 		
@@ -228,7 +228,7 @@ def find_controlled_gate_AXB(matrix_rep):
 	whole_representation = []
 	
 	while True:
-		A = mult_all(whole_representation)
+		A = mult_all_universal(whole_representation)
 		B = np.linalg.inv(A)
 		mul = np.matmul
 		
