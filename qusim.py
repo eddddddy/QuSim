@@ -93,14 +93,12 @@ class QuScore:
 	root_two_inverse = 1/np.sqrt(2)
 	root_three_inverse = 1/np.sqrt(3)
 
-	# example score with 3 qubits:
-	# {1: {1: (H, 1), 3: (H, 1)}, 2: {1: (CNOT, 1), 2: (CNOT, 2)}}
-
 	# initializes the score to contain the number of qubits and the current
 	#   dictionary (which is empty)
 	def __init__(self, num_of_qubits):
 		self.num_of_qubits = num_of_qubits
 		self.score = {}
+		self.next_time_step = 1
 		
 	# returns the number of qubits in the score
 	def get_num_of_qubits(self):
@@ -119,42 +117,40 @@ class QuScore:
 	#   ensure that the qubit exists in the score and that the gate does not
 	#   conflict with any other gate
 	# note: multi-qubit gates operate on the passed qubit and the immediate next ones
-	def add_gate(self, gate, time_step, qubit1):
+	def add_gate(self, gate, qubit = 1, time_step = None):
+
+		if time_step == None:
+			time_step = self.next_time_step
 	
 		if gate.get_num_of_qubits() == 1:
 		
 			if time_step not in self.score.keys():
 				self.score[time_step] = {}
-			self.score[time_step][qubit1] = (gate, 1)
+			self.score[time_step][qubit] = (gate, 1)
 			
 		elif gate.get_num_of_qubits() == 2:
 		
 			if time_step not in self.score.keys():
 				self.score[time_step] = {}
-			self.score[time_step][qubit1] = (gate, 1)
-			self.score[time_step][qubit1 + 1] = (gate, 2)
+			self.score[time_step][qubit] = (gate, 1)
+			self.score[time_step][qubit + 1] = (gate, 2)
 			
 		elif gate.get_num_of_qubits() == 3:
 			
 			if time_step not in self.score.keys():
 				self.score[time_step] = {}
-			self.score[time_step][qubit1] = (gate, 1)
-			self.score[time_step][qubit1 + 1] = (gate, 2)
-			self.score[time_step][qubit1 + 2] = (gate, 3)
-			
+			self.score[time_step][qubit] = (gate, 1)
+			self.score[time_step][qubit + 1] = (gate, 2)
+			self.score[time_step][qubit + 2] = (gate, 3)
+		
+		self.next_time_step = max(self.next_time_step, time_step + 1)	
 		return self
 			
 	# appends a different score to the end of this one; the score passed is unmodified
 	def append_score(self, following_score):
-	
-		last_time_step = 0
-		try:
-			last_time_step = max(self.score.keys())
-		except ValueError:
-			pass
 
-		for time_step in following_score.score:
-			self.score[time_step + last_time_step] = following_score.score[time_step]
+		for time_step in following_score.get_score():
+			self.score[time_step + next_time_step] = following_score.score[time_step]
 
 		return self
 		
@@ -292,171 +288,189 @@ Tt = QuGate("Tt")
 #   sequence of universal gates acting on some set of qubits
 
 # the Kronecker product of Hadamard gates on 2 qubits
-H2 = QuGate("H2", QuScore(2).add_gate(H, 1, 1).add_gate(H, 1, 2))
+H2 = QuGate("H2", QuScore(2).add_gate(H, 1)
+                            .add_gate(H, 2))
 
 # the Kronecker product of Hadamard gates on 3 qubits
-H3 = QuGate("H3", QuScore(3).add_gate(H, 1, 1).add_gate(H, 1, 2).add_gate(H, 1, 3))
+H3 = QuGate("H3", QuScore(3).add_gate(H, 1)
+                            .add_gate(H, 2)
+                            .add_gate(H, 3))
 
 # the Kronecker product of Hadamard gates on 4 qubits
-H4 = QuGate("H4", QuScore(4).add_gate(H, 1, 1).add_gate(H, 1, 2).add_gate(H, 1, 3).add_gate(H, 1, 4))
+H4 = QuGate("H4", QuScore(4).add_gate(H, 1)
+                            .add_gate(H, 2)
+                            .add_gate(H, 3)
+                            .add_gate(H, 4))
 
 # the controlled-Z gate, which performs a phase-flip on the second qubit iff the first
 #   qubit is measured to be 1
-CZ = QuGate("CZ", QuScore(2).add_gate(H, 1, 2).add_gate(CNOT, 2, 1).add_gate(H, 3, 2))
+CZ = QuGate("CZ", QuScore(2).add_gate(H, 2)
+                            .add_gate(CNOT, 1)
+                            .add_gate(H, 2))
 
 # the controlled-Y gate, which performs a bit-flip and a phase-flip on the second qubit
 #   iff the first qubit is measured to be 1
-CY = QuGate("CY", QuScore(2).add_gate(St, 1, 2).add_gate(CNOT, 2, 1).add_gate(S, 3, 2))
+CY = QuGate("CY", QuScore(2).add_gate(St, 2)
+                            .add_gate(CNOT, 1)
+                            .add_gate(S, 2))
 
 # the controlled Hadamard gate, which performs a Hadamard operation on the second qubit
 #   iff the first qubit is measured to be 1
-CH = QuGate("CH", QuScore(2).add_gate(St, 1, 2)
-                            .add_gate(H, 2, 2)
-							.add_gate(Tt, 3, 2)
-                            .add_gate(CNOT, 4, 1)
-							.add_gate(T, 5, 2)
-							.add_gate(H, 6, 2)
-							.add_gate(S, 7, 2))
+CH = QuGate("CH", QuScore(2).add_gate(St, 2)
+                            .add_gate(H, 2)
+                            .add_gate(Tt, 2)
+                            .add_gate(CNOT, 1)
+                            .add_gate(T, 2)
+                            .add_gate(H, 2)
+                            .add_gate(S, 2))
 
 # the reversed controlled-not gate, which flips the first qubit iff the second qubit
 #   is measured to be 1
 # in terms of universal gates only:
-# CNOTR = QuGate("CNOTR", QuScore(2).add_gate(H, 1, 1)
-#			                        .add_gate(H, 1, 2)
-# 			                        .add_gate(CNOT, 2, 1)
-# 			                        .add_gate(H, 3, 1)
-# 			                        .add_gate(H, 3, 2))
-CNOTR = QuGate("CNOTR", QuScore(2).add_gate(H2, 1, 1).add_gate(CNOT, 2, 1).add_gate(H2, 3, 1))
+# CNOTR = QuGate("CNOTR", QuScore(2).add_gate(H, 1)
+#			            .add_gate(H, 2)
+# 			            .add_gate(CNOT, 1)
+# 			            .add_gate(H, 1)
+# 			            .add_gate(H, 2))
+CNOTR = QuGate("CNOTR", QuScore(2).add_gate(H2, 1)
+                                  .add_gate(CNOT, 1)
+                                  .add_gate(H2, 1))
 
 # the swap gate, which swaps the states of the two input qubits
 # in terms of universal gates only:
-# SWAP = QuGate("SWAP", QuScore(2).add_gate(CNOT, 1, 1)
-#                                 .add_gate(H, 2, 1)
-#                                 .add_gate(H, 2, 2)
-#                                 .add_gate(CNOT, 3, 1)
-#                                 .add_gate(H, 4, 1)
-#                                 .add_gate(H, 4, 2)
-#                                 .add_gate(CNOT, 5, 1))
-SWAP = QuGate("SWAP", QuScore(2).add_gate(CNOT, 1, 1).add_gate(CNOTR, 2, 1).add_gate(CNOT, 3, 1))
+# SWAP = QuGate("SWAP", QuScore(2).add_gate(CNOT, 1)
+#                                 .add_gate(H, 1)
+#                                 .add_gate(H, 2)
+#                                 .add_gate(CNOT, 1)
+#                                 .add_gate(H, 1)
+#                                 .add_gate(H, 2)
+#                                 .add_gate(CNOT, 1))
+SWAP = QuGate("SWAP", QuScore(2).add_gate(CNOT, 1)
+                                .add_gate(CNOTR, 1)
+                                .add_gate(CNOT, 1))
 
 # a CNOT gate which acts on the two non-adjacent qubits in a three-qubit score (i.e. 
 #   it flips the third qubit iff the first qubit is measured to be 1, regardless of
 #   what the second qubit is measured to be)
 # in terms of universal gates only:
-# CNOT13 = QuGate("CNOT13", QuScore(3).add_gate(CNOT, 1, 2)
-#                                     .add_gate(H, 2, 2)
-#                                     .add_gate(H, 2, 3)
-#                                     .add_gate(CNOT, 3, 2)
-#                                     .add_gate(H, 4, 2)
-#                                     .add_gate(H, 4, 3)
-#                                     .add_gate(CNOT, 5, 2)
-#                                     .add_gate(CNOT, 6, 1)
-#                                     .add_gate(CNOT, 7, 2)
-#                                     .add_gate(H, 8, 2)
-#                                     .add_gate(H, 8, 3)
-#                                     .add_gate(CNOT, 9, 2)
-#                                     .add_gate(H, 10, 2)
-#                                     .add_gate(H, 10, 3)
-#                                     .add_gate(CNOT, 11, 2)
-CNOT13 = QuGate("CNOT13", QuScore(3).add_gate(SWAP, 1, 2).add_gate(CNOT, 2, 1).add_gate(SWAP, 3, 2))
+# CNOT13 = QuGate("CNOT13", QuScore(3).add_gate(CNOT, 2)
+#                                     .add_gate(H, 2)
+#                                     .add_gate(H, 3)
+#                                     .add_gate(CNOT, 2)
+#                                     .add_gate(H, 2)
+#                                     .add_gate(H, 3)
+#                                     .add_gate(CNOT, 2)
+#                                     .add_gate(CNOT, 1)
+#                                     .add_gate(CNOT, 2)
+#                                     .add_gate(H, 2)
+#                                     .add_gate(H, 3)
+#                                     .add_gate(CNOT, 2)
+#                                     .add_gate(H, 2)
+#                                     .add_gate(H, 3)
+#                                     .add_gate(CNOT, 2)
+CNOT13 = QuGate("CNOT13", QuScore(3).add_gate(SWAP, 2)
+                                    .add_gate(CNOT, 1)
+                                    .add_gate(SWAP, 2))
 
 # a SWAP gate which swaps the two non-adjacent qubits in a three-qubit score and leaves
 #   the other one unmodified
 # in terms of universal gates only:
-# SWAP13 = QuGate("SWAP13", QuScore(3).add_gate(CNOT, 1, 1)
-#                                     .add_gate(H, 2, 1)
-#                                     .add_gate(H, 2, 2)
-#                                     .add_gate(CNOT, 3, 1)
-#                                     .add_gate(H, 4, 1)
-#                                     .add_gate(H, 4, 2)
-#                                     .add_gate(CNOT, 5, 1)
-#                                     .add_gate(CNOT, 6, 2)
-#                                     .add_gate(H, 7, 2)
-#                                     .add_gate(H, 7, 3)
-#                                     .add_gate(CNOT, 8, 2)
-#                                     .add_gate(H, 9, 2)
-#                                     .add_gate(H, 9, 3)
-#                                     .add_gate(CNOT, 10, 2)
-#                                     .add_gate(CNOT, 11, 1)
-#                                     .add_gate(H, 12, 1)
-#                                     .add_gate(H, 12, 2)
-#                                     .add_gate(CNOT, 13, 1)
-#                                     .add_gate(H, 14, 1)
-#                                     .add_gate(H, 14, 2)
-#                                     .add_gate(CNOT, 15, 1)
-SWAP13 = QuGate("SWAP13", QuScore(3).add_gate(SWAP, 1, 1).add_gate(SWAP, 2, 2).add_gate(SWAP, 3, 1))
+# SWAP13 = QuGate("SWAP13", QuScore(3).add_gate(CNOT, 1)
+#                                     .add_gate(H, 1)
+#                                     .add_gate(H, 2)
+#                                     .add_gate(CNOT, 1)
+#                                     .add_gate(H, 1)
+#                                     .add_gate(H, 2)
+#                                     .add_gate(CNOT, 1)
+#                                     .add_gate(CNOT, 2)
+#                                     .add_gate(H, 2)
+#                                     .add_gate(H, 3)
+#                                     .add_gate(CNOT, 2)
+#                                     .add_gate(H, 2)
+#                                     .add_gate(H, 3)
+#                                     .add_gate(CNOT, 2)
+#                                     .add_gate(CNOT, 1)
+#                                     .add_gate(H, 1)
+#                                     .add_gate(H, 2)
+#                                     .add_gate(CNOT, 1)
+#                                     .add_gate(H, 1)
+#                                     .add_gate(H, 2)
+#                                     .add_gate(CNOT, 1)
+SWAP13 = QuGate("SWAP13", QuScore(3).add_gate(SWAP, 1)
+                                    .add_gate(SWAP, 2)
+                                    .add_gate(SWAP, 1))
 
 # the Toffoli gate, which flips the state of the third qubit in a three-qubit score iff
 #   the states of the first and second qubits are both measured to be 1
 # in terms of universal gates only:
-# TOF = QuGate("TOF", QuScore(3).add_gate(H, 1, 3)
-#                               .add_gate(CNOT, 2, 2)
-#                               .add_gate(Tt, 3, 3)
-#                               .add_gate(CNOT, 4, 2)
-#                               .add_gate(H, 5, 2)
-#                               .add_gate(H, 5, 3)
-#                               .add_gate(CNOT, 6, 2)
-#                               .add_gate(H, 7, 2)
-#                               .add_gate(H, 7, 3)
-#                               .add_gate(CNOT, 8, 2)
-#                               .add_gate(CNOT, 9, 1)
-#                               .add_gate(CNOT, 10, 2)
-#                               .add_gate(H, 11, 2)
-#                               .add_gate(H, 11, 3)
-#                               .add_gate(CNOT, 12, 2)
-#                               .add_gate(H, 13, 2)
-#                               .add_gate(H, 13, 3)
-#                               .add_gate(CNOT, 14, 2)
-#                               .add_gate(T, 15, 3)
-#                               .add_gate(CNOT, 16, 2)
-#                               .add_gate(Tt, 17, 3)
-#                               .add_gate(CNOT, 18, 2)
-#                               .add_gate(H, 19, 2)
-#                               .add_gate(H, 19, 3)
-#                               .add_gate(CNOT, 20, 2)
-#                               .add_gate(H, 21, 2)
-#                               .add_gate(H, 21, 3)
-#                               .add_gate(CNOT, 22, 2)
-#                               .add_gate(CNOT, 23, 1)
-#                               .add_gate(CNOT, 24, 2)
-#                               .add_gate(H, 25, 2)
-#                               .add_gate(H, 25, 3)
-#                               .add_gate(CNOT, 26, 2)
-#                               .add_gate(H, 27, 2)
-#                               .add_gate(H, 27, 3)
-#                               .add_gate(CNOT, 28, 2)
-#                               .add_gate(T, 29, 2)
-#							    .add_gate(T, 29, 3)
-#                               .add_gate(CNOT, 30, 1)
-#                               .add_gate(H, 30, 3)
-#  							    .add_gate(T, 31, 1)
-#                               .add_gate(Tt, 31, 2)
-#                               .add_gate(CNOT, 32, 1))
-TOF = QuGate("TOF", QuScore(3).add_gate(H, 1, 3)
-                              .add_gate(CNOT, 2, 2)
-							  .add_gate(Tt, 3, 3)
-                              .add_gate(CNOT13, 4, 1)
-							  .add_gate(T, 5, 3)
-							  .add_gate(CNOT, 6, 2)
-							  .add_gate(Tt, 7, 3)
-							  .add_gate(CNOT13, 8, 1)
-							  .add_gate(T, 9, 2)
-							  .add_gate(T, 9, 3)
-							  .add_gate(CNOT, 10, 1)
-							  .add_gate(H, 10, 3)
-							  .add_gate(T, 11, 1)
-							  .add_gate(Tt, 11, 2)
-							  .add_gate(CNOT, 12, 1))
+# TOF = QuGate("TOF", QuScore(3).add_gate(H, 3)
+#                               .add_gate(CNOT, 2)
+#                               .add_gate(Tt, 3)
+#                               .add_gate(CNOT, 2)
+#                               .add_gate(H, 2)
+#                               .add_gate(H, 3)
+#                               .add_gate(CNOT, 2)
+#                               .add_gate(H, 2)
+#                               .add_gate(H, 3)
+#                               .add_gate(CNOT, 2)
+#                               .add_gate(CNOT, 1)
+#                               .add_gate(CNOT, 2)
+#                               .add_gate(H, 2)
+#                               .add_gate(H, 3)
+#                               .add_gate(CNOT, 2)
+#                               .add_gate(H, 2)
+#                               .add_gate(H, 3)
+#                               .add_gate(CNOT, 2)
+#                               .add_gate(T, 3)
+#                               .add_gate(CNOT, 2)
+#                               .add_gate(Tt, 3)
+#                               .add_gate(CNOT, 2)
+#                               .add_gate(H, 2)
+#                               .add_gate(H, 3)
+#                               .add_gate(CNOT, 2)
+#                               .add_gate(H, 2)
+#                               .add_gate(H, 3)
+#                               .add_gate(CNOT, 2)
+#                               .add_gate(CNOT, 1)
+#                               .add_gate(CNOT, 2)
+#                               .add_gate(H, 2)
+#                               .add_gate(H, 3)
+#                               .add_gate(CNOT, 2)
+#                               .add_gate(H, 2)
+#                               .add_gate(H, 3)
+#                               .add_gate(CNOT, 2)
+#                               .add_gate(T, 2)
+#                               .add_gate(T, 3)
+#                               .add_gate(CNOT, 1)
+#                               .add_gate(H, 3)
+#                               .add_gate(T, 1)
+#                               .add_gate(Tt, 2)
+#                               .add_gate(CNOT, 1))
+TOF = QuGate("TOF", QuScore(3).add_gate(H, 3)
+                              .add_gate(CNOT, 2)
+                              .add_gate(Tt, 3)
+                              .add_gate(CNOT13, 1)
+                              .add_gate(T, 3)
+                              .add_gate(CNOT, 2)
+                              .add_gate(Tt, 3)
+                              .add_gate(CNOT13, 1)
+                              .add_gate(T, 2)
+                              .add_gate(T, 3)
+                              .add_gate(CNOT, 1)
+                              .add_gate(H, 3)
+                              .add_gate(T, 1)
+                              .add_gate(Tt, 2)
+                              .add_gate(CNOT, 1))
 
 ############################################################################################
 
 ###################################### Useful Scores #######################################
 
 # preparation of the Bell state [0.5, 0, 0, 0.5]
-bell_0 = QuScore(2).add_gate(H, 1, 1).add_gate(CNOT, 2, 1)
+bell_0 = QuScore(2).add_gate(H, 1).add_gate(CNOT, 1)
 
 # preparation of a variation of the Bell state [0, 0.5, 0.5, 0]
-bell_1 = QuScore(2).add_gate(H, 1, 1).add_gate(X, 1, 2).add_gate(CNOT, 2, 1)
+bell_1 = QuScore(2).add_gate(H, 1).add_gate(X, 2).add_gate(CNOT, 1)
 
 ############################################################################################
 

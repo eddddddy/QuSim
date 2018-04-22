@@ -15,7 +15,7 @@ start_with_rotation = True
 
 # determines if two matrices are "close enough" to each other (this function is required due to Python's float inprecision)
 def are_close_enough(mat1, mat2):
-	epsilon = 1e-6
+	epsilon = 1e-4
 	
 	def flatten(mat):
 		if len(mat) == 0:
