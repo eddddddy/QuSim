@@ -323,6 +323,22 @@ CH = QuGate("CH", QuScore(2).add_gate(St, 2)
                             .add_gate(T, 2)
                             .add_gate(H, 2)
                             .add_gate(S, 2))
+							
+# the controlled S gate, which performs a right-handed pi/2 phase shift on the second
+#   qubit iff the first qubit is measured to be 1
+CS = QuGate("CS", QuScore(2).add_gate(T, 2)
+                            .add_gate(CNOT, 1)
+							.add_gate(Tt, 2)
+							.add_gate(CNOT, 1)
+							.add_gate(T, 1))
+							
+# the controlled St gate, which performs a left-handed pi/2 phase shift on the second
+#   qubit iff the first qubit is measured to be 1
+CSt = QuGate("CSt", QuScore(2).add_gate(Tt, 2)
+                              .add_gate(CNOT, 1)
+							  .add_gate(T, 2)
+							  .add_gate(CNOT, 1)
+							  .add_gate(Tt, 1))
 
 # the reversed controlled-not gate, which flips the first qubit iff the second qubit
 #   is measured to be 1
