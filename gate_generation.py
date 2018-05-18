@@ -1,3 +1,7 @@
+'''
+This module implements the "naive" gate-searching algorithm
+'''
+
 import numpy as np
 
 universal_gates = [np.matrix([[0, 1], [1, 0]]), np.matrix([[1, 0], [0, -1]]), np.matrix([[0, -1j], [1j, 0]]), np.matrix([[1, 1], [1, -1]]) / np.sqrt(2), np.matrix([[1, 0], [0, 1j]]), np.matrix([[1, 0], [0, -1j]]), np.matrix([[1, 0], [0, 1/np.sqrt(2) + 1j/np.sqrt(2)]]), np.matrix([[1, 0], [0, 1/np.sqrt(2) - 1j/np.sqrt(2)]])]
@@ -236,22 +240,6 @@ def find_controlled_gate_AXB(matrix_rep):
 			return whole_representation
 		
 		whole_representation = iter_whole_representation_universal(whole_representation)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -1,6 +1,8 @@
-import numpy as np
-import interval
+'''
+This module implements the RCUP solution-searching algorithm described in https://arxiv.org/pdf/1212.6964.pdf
+'''
 
+import numpy as np
 
 class ClosedInterval:
 	
@@ -42,7 +44,7 @@ def assimilate(r):
 @param theta: float
 @param delta: float
 
-@return: i have no freaking clue
+@return: float, list (or array-like object)
 
 RCUP_algorithm solves the Restricted Closest Unitary Problem with
 T-count n, angle theta, and threshold delta

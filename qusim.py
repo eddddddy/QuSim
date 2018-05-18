@@ -22,7 +22,7 @@ class QuBit:
 	
 	# modifies theta (angle between Bloch vector and +Z) and phi (angle between Bloch vector and +X)
 	def recalculate_phases(self):
-		Pass # do this later when i actually understand whats happening
+		Pass 
 
 	# modifies the qubit based on application of the gate
 	def apply_gate(self, gate):
