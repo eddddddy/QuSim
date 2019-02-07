@@ -18,12 +18,35 @@ class ClosedInterval:
 		
 	def intersect_is_empty(self, other):
 		return other.upper < lower and other.lower > upper
+		
+
+# class name is AlgebraicNumber, but this only implements numbers in Z[i, exp(i * pi / 4)]	
+class AlgebraicNumber:
+	
+	def __init__(self, a_0, b_0, a_1, b_1):
+		self.a_0 = a_0
+		self.b_0 = b_0
+		self.a_1 = a_1
+		self.b_1 = b_1
+		
+	def negate(self):
+		return AlgebraicNumber(-a_0, -b_0, -a_1, -b_1)
+		
+	def add(self, other_algebraic_number):
+		return AlgebraicNumber(a_0 + other_algebraic_number.a_0,
+		                       b_0 + other_algebraic_number.b_0,
+							   a_1 + other_algebraic_number.a_1,
+							   b_1 + other_algebraic_number.b_1)
+							   
+	def norm_squared(self):
+		return AlgebraicNumber(a_0 ** 2 + 2 * b_0 ** 2 + a_1 ** 2 + 2 * b_1 ** 2,
+		                       2 * a_0 * b_0 + 2 * a_1 * b_1, 0, 0)
 
 
 '''
 @param r: float
 
-@return: float
+@return: boolean, float
 
 assimilate returns an integer if r is close to one
 '''
@@ -32,11 +55,11 @@ def assimilate(r):
 	lower = int(np.floor(r))
 	upper = int(np.ceil(r))
 	if np.abs(r - lower) < epsilon:
-		return lower
+		return True, lower
 	elif np.abs(r - upper) < epsilon:
-		return upper
+		return True, upper
 	else:
-		return r
+		return False, r
 
 
 '''
@@ -69,6 +92,11 @@ def RCUP_algorithm(n, theta, delta):
 				if I.intersect(ClosedInterval(0, delta)).contains(tuple1[0] + tuple2[0]):
 					A.append((tuple1[0] + tuple2[0], tuple1[1], tuple1[2], tuple2[1], tuple2[2], 1))
 		A = sorted(A)
+		epsilons = list(set(map(lambda tuple: tuple[0], A)))
+		for epsilon in epsilon:
+			Delta = []
+			for tuple in A:
+			
 	
 '''
 @param alpha: float
@@ -96,11 +124,13 @@ def find_halves(alpha, m, delta):
 		b += 1;
 		v -= np.sqrt(2)
 	return sorted(R)
-	
+
+
 '''
+TODO: write this function
 '''
 def min_t_count(x_prime, m, k):
-	c = np.power(2, m) - np.abs(x_prime) ** 2
+	return 9000
 
 
 
